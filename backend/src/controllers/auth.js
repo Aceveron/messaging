@@ -78,6 +78,7 @@ export const login = async (req, res) => {
         message: 'Invalid credentials'
       });
     }
+
     generateToken(user._id, res);
     res.status(200).json({
       _id: user._id,
@@ -85,6 +86,7 @@ export const login = async (req, res) => {
       email: user.email,
       profilePic: user.profilePic,
     });
+
   } catch (error) {
     console.log("Error in login controller:", error.message);
     res.status(500).json({ 
@@ -98,6 +100,7 @@ export const logout = (req, res) => {
   try {
     res.cookie('token', '', { maxAge: 0 });
     res.status(200).json({ message: 'Logged out successfully' });
+     
   } catch (error) {
     console.log("Error in logout controller:", error.message);
     res.status(500).json({ 
@@ -125,6 +128,7 @@ export const profile = async (req, res) => {
       { new: true }
     );
     res.status(200).json(updatedUser);
+
   } catch (error) {
     console.log("Error in Profile controller:", error.message);
     res.status(500).json({ 
@@ -136,11 +140,22 @@ export const profile = async (req, res) => {
 // authed - check if user is authenticated and determine either to take them to profile or login page when refreshing page
 export const authed = (req, res) => {
   try {
-    res.status(200).json(req.user);
+    if (!req.user) {
+      return res.status(401).json({
+        authenticated: false,
+        message: "Not authenticated",
+      });
+    }
+
+    res.status(200).json({
+      authenticated: true,
+      user: req.user,
+    });
+
   } catch (error) {
     console.log("Error in authed controller:", error.message);
-    res.status(500).json({ 
-      message: 'Server error'
+    res.status(500).json({
+      message: "Server error",
     });
   }
 };
