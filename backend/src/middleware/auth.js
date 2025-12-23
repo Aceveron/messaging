@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
+import User from '../schemas/user.js';
 
 // Gatekeeper middleware to protect routes
 export const Gatekeeper = async (req, res, next) => { /** next is a callback to proceed to the next middleware 
