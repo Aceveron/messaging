@@ -1,7 +1,6 @@
 import { MessagesSquare, User, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
-import { useAuthStore } from "../store/useAuth";
+import { useAuth } from "../store/useAuth";
 import { Link } from "react-router-dom";
-import AuthImagePattern from "../components/AuthImagePattern";
 import toast from "react-hot-toast";
 import { useState } from "react";
 
@@ -13,7 +12,7 @@ const Register = () => {
     password: "",
   });
 
-  const { register, isRegister } = useAuthStore();
+  const { register, isRegister } = useAuth();
 
   const validateForm = () => {
     if (!formData.fullname.trim())
@@ -44,11 +43,10 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-auto grid lg: grid-cols-2">
+    <div className="min-h-screen flex justify-center items-center">
 
-      {/* Left Side */}
-      <div className="flex flex-col justify-center items-center p-6 sm:p-12">
-        <div className="w-full max-w-md space-y-8">
+      {/* Registration Form */}
+      <div className="w-full max-w-md space-y-8 p-6 sm:p-12">
 
           {/** Logo */}
           <div className="text-center mb-8">
@@ -153,15 +151,6 @@ const Register = () => {
             </p>
           </div>
         </div>
-      </div>
-
-
-      {/* right side */}
-      <AuthImagePattern
-        title="Join our community"
-        subtitle="Connect with friends, share moments, and stay in touch with your loved ones."
-      />
-
     </div>
   );
 };

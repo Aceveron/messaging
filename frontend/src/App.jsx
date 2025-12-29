@@ -5,14 +5,14 @@ import Register from "./pages/register";
 import Login from "./pages/login";
 import Profile from "./pages/profile";
 import Settings from "./pages/Settings";
-import { useAuthStore } from "./store/useAuth";
+import { useAuth } from "./store/useAuth";
 import { useEffect } from "react";
 import { Loader } from "lucide-react"
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
 
-  const {authUser, checkAuth, isCheckingAuth } = useAuthStore()
+  const {authUser, checkAuth, isCheckingAuth } = useAuth()
   useEffect(() => {
     checkAuth()
   }, [checkAuth]);

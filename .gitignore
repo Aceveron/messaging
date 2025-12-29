@@ -1,23 +1,64 @@
+### Root artifacts
 node_modules/
-.env
-.DS_Store
-.vscode/
 dist/
-npm/
+dist-ssr/
 build/
 coverage/
 logs/
 *.log
-pids/
+*.tsbuildinfo
 *.pid
 *.seed
 *.pid.lock
-lib-cov/
-*.tsbuildinfo
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+### Environment
+.env
+.env.local
+.env.production
 *.env
+
+### OS / editor cruft
+.DS_Store
+Thumbs.db
 .idea/
 .cache/
-frontend/node_modules
-backend/node_modules
+.vscode/
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+### Frontend
+frontend/node_modules/
+frontend/dist/
 frontend/.env
-backend/.env
+
+### Backend
+backend/node_modules/
+backend/target/
+backend/.idea/
+backend/.apt_generated
+backend/.classpath
+backend/.factorypath
+backend/.project
+backend/.settings
+backend/.springBeans
+backend/.sts4-cache
+backend/nbproject/private/
+backend/nbbuild/
+backend/dist/
+backend/nbdist/
+backend/.nb-gradle/
+backendbuild/
+backend/src/main/resources/application.properties
+backend/target/classes/application.properties
+
+### Other modules
+backend1/

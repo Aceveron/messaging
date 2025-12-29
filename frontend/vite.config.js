@@ -7,4 +7,8 @@ export default defineConfig({
   plugins: [
     react(), 
     tailwindcss()],
+  define: {
+    // Polyfill Node-style global for browser libraries like sockjs-client
+    global: 'window',
+  },
 })
