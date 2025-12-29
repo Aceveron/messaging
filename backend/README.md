@@ -25,7 +25,7 @@ A real-time messaging application backend built with Spring Boot, MongoDB, JWT a
 ## Project Structure
 
 ```
-backend-java/
+backend/
 ├── pom.xml                                 # Maven configuration
 ├── main/
 │   ├── resources/
