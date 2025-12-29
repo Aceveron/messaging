@@ -127,7 +127,7 @@ cors.allowed-origins=http://localhost:5173
 
 1. **Clone or navigate to the project directory**
    ```bash
-   cd backend-java
+   cd backend
    ```
 
 2. **Configure environment variables**
@@ -230,7 +230,7 @@ This project is licensed under the ISC License.
 
 ## Author
 
-Messaging Backend Team
+Aceveronn
 
 ## Notes
 
