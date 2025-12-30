@@ -36,17 +36,47 @@ export const useChat = create((set, get) => ({
   },
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
+    const { authUser } = useAuth.getState();
+    
     try {
+      // Create unique temporary ID
+      const tempId = `temp-${Date.now()}-${Math.random()}`;
+      
+      // Create optimistic message for immediate display
+      const optimisticMessage = {
+        _id: tempId,
+        text: messageData.text || "",
+        image: messageData.image || null,
+        senderId: authUser._id,
+        receiverId: selectedUser._id,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      // Display message immediately (optimistic update)
+      const messagesWithOptimistic = [...messages, optimisticMessage];
+      set({ messages: messagesWithOptimistic });
+      
+      // Send to server in background
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: [...messages, res.data] });
+      
+      // Replace optimistic message with real one from server
+      const updatedMessages = messagesWithOptimistic.map(msg => 
+        msg._id === tempId ? res.data : msg
+      );
+      set({ messages: updatedMessages });
     } catch (error) {
-      toast.error(error.response.data.message);
+      // Remove optimistic message on error and show error toast
+      set({ messages: messages });
+      toast.error(error.response?.data?.message || "Failed to send message");
     }
   },
 
   subscribeToMessages: () => {
     const { selectedUser, messageSubscription } = get();
+    const { authUser } = useAuth.getState();
     if (!selectedUser) return;
+    if (!authUser?._id) return;
 
     const client = useAuth.getState().socket; // STOMP client
     if (!client) return;
@@ -73,7 +103,7 @@ export const useChat = create((set, get) => ({
       // Double-check to avoid duplicate subs if connect fires multiple times
       if (get().messageSubscription) return;
 
-      const sub = client.subscribe("/user/topic/messages", (frame) => {
+      const sub = client.subscribe(`/topic/messages/${authUser._id}`, (frame) => {
         try {
           const newMessage = JSON.parse(frame.body);
           const isFromSelectedUser = newMessage.senderId === selectedUser._id;

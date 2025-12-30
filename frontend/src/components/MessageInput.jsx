@@ -48,19 +48,22 @@ const MessageInput = () => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
 
-    try {
-      await sendMessage({
-        text: text.trim(),
-        image: imagePreview,
-      });
+      const textToSend = text.trim();
+      const imageToSend = imagePreview;
 
-      // Clear form
+      // Clear form immediately for better UX
       setText("");
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
       }
+
+      try {
+      await sendMessage({
+          text: textToSend,
+          image: imageToSend,
+      });
     } catch (error) {
       console.error("Failed to send message:", error);
     }

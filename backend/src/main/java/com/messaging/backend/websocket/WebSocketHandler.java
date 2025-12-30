@@ -20,12 +20,9 @@
 package com.messaging.backend.websocket;
 
 import com.messaging.backend.dto.response.MessageResponse;
-import com.messaging.backend.entity.User;
-import com.messaging.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
@@ -40,12 +37,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate; // Template for sending STOMP messages
-
-    @Autowired
-    private SimpUserRegistry simpUserRegistry; // Registry of connected STOMP users (by Principal name)
-
-    @Autowired
-    private UserRepository userRepository; // To resolve receiver principal name (email) from userId
 
     // Map to track online users: userId -> WebSocket session ID
     private final Map<String, String> userSocketMap = new ConcurrentHashMap<>();
@@ -105,29 +96,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
      */
     @SuppressWarnings("null")
     public void sendMessageToUser(String userId, MessageResponse message) {
-        // Resolve the receiver's Principal name used by STOMP user destinations
-        User receiver = userRepository.findById(userId).orElse(null);
-        if (receiver == null) {
-            System.out.println("Receiver not found for userId: " + userId + " (message not sent)");
-            return;
-        }
-
-        String principalName = receiver.getEmail();
-
-        // Check online presence via SimpUserRegistry (by Principal name)
-        boolean isOnline = simpUserRegistry.getUser(principalName) != null;
-        if (!isOnline) {
-            System.out.println("User not online: " + userId + " (" + principalName + ") (message not sent in real-time)");
-            return;
-        }
-
-        // Route to the user's personal destination; client should subscribe to /user/topic/messages
-        messagingTemplate.convertAndSendToUser(
-                principalName,
-                "/topic/messages",
-                message
-        );
-        System.out.println("Message sent to userId: " + userId + " as principal: " + principalName);
+        // Send directly to a per-user topic; clients subscribe to /topic/messages/{userId}
+        messagingTemplate.convertAndSend("/topic/messages/" + userId, message);
+        System.out.println("Message sent to userId: " + userId);
     }
 
     /**
