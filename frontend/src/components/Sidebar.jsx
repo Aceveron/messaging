@@ -5,28 +5,13 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users } from "lucide-react";
 
 const Sidebar = () => {
-  const {
-    getUsers,
-    users,
-    selectedUser,
-    setSelectedUser,
-    isUsersLoading,
-    userSearchTerm,
-    unreadCounts,
-    subscribeToMessages,
-    unsubscribeFromMessages,
-  } = useChat();
+  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChat();
 
   const { onlineUsers } = useAuth();
 
   useEffect(() => {
     getUsers();
   }, [getUsers]);
-
-  useEffect(() => {
-    subscribeToMessages();
-    return () => unsubscribeFromMessages();
-  }, [subscribeToMessages, unsubscribeFromMessages]);
 
   if (isUsersLoading) return <SidebarSkeleton />;
 
@@ -40,18 +25,7 @@ const Sidebar = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
-        {users
-          .filter((user) => {
-            const q = userSearchTerm.trim().toLowerCase();
-            if (!q) return true;
-            return (
-              user.fullname?.toLowerCase().includes(q) ||
-              user.email?.toLowerCase().includes(q)
-            );
-          })
-          .map((user) => {
-            const unread = unreadCounts?.[user._id] || 0;
-            return (
+        {users.map((user) => (
           <button
             key={user._id}
             onClick={() => setSelectedUser(user)}
@@ -82,17 +56,8 @@ const Sidebar = () => {
                 {onlineUsers.includes(user._id) ? "Online" : "Offline"}
               </div>
             </div>
-
-            {unread > 0 && (
-              <div className="ml-auto">
-                <span className="badge badge-primary badge-sm rounded-full px-2">
-                  {unread > 99 ? "99+" : unread}
-                </span>
-              </div>
-            )}
           </button>
-          );
-          })}
+        ))}
 
         {users.length === 0 && (
           <div className="text-center text-zinc-500 py-4">No online users</div>

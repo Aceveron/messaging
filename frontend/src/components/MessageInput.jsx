@@ -1,13 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import { useChat } from "../store/useChat";
-import { uploadEncryptedImage } from "../lib/mediaApi";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
   const { sendMessage } = useChat();
@@ -25,8 +23,6 @@ const MessageInput = () => {
       return;
     }
 
-    setImageFile(file);
-
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result);
@@ -36,7 +32,6 @@ const MessageInput = () => {
 
   const removeImage = () => {
     setImagePreview(null);
-    setImageFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -53,29 +48,21 @@ const MessageInput = () => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
 
-    const textToSend = text.trim();
-    const previewUrl = imagePreview; // keep before clearing
-    const fileToSend = imageFile;
+      const textToSend = text.trim();
+      const imageToSend = imagePreview;
 
-    // Clear form immediately for UX; we keep local copies for upload
-    setText("");
-    setImagePreview(null);
-    setImageFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
-
-    try {
-      let mediaPayload = {};
-      if (fileToSend) {
-        const uploaded = await uploadEncryptedImage(fileToSend);
-        mediaPayload = { ...uploaded, previewUrl };
+      // Clear form immediately for better UX
+      setText("");
+      setImagePreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
       }
 
+      try {
       await sendMessage({
-        text: textToSend,
-        ...mediaPayload,
+          text: textToSend,
+          image: imageToSend,
       });
     } catch (error) {
       console.error("Failed to send message:", error);

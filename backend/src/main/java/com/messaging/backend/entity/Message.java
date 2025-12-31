@@ -2,14 +2,14 @@
  * Message Entity - MongoDB Document Model
  * 
  * Represents a message in the messaging application and maps to the "messages" collection in MongoDB.
- * This entity stores all message data exchanged between users, including text and encrypted media metadata.
+ * This entity stores all message data exchanged between users, including text, images, and metadata.
  * 
  * Features:
  * - Text message content (optional)
- * - Encrypted media metadata (client-side encryption)
+ * - Image URL support (optional, stored in Cloudinary)
  * - Sender and receiver references (User IDs)
  * - Automatic timestamp tracking (createdAt, updatedAt)
- * - Support for both text-only and media messages
+ * - Support for both text-only and image-only messages
  * 
  * MongoDB Collection: messages
  */
@@ -34,19 +34,13 @@ public class Message {
     @Id // Marks this field as the primary key (MongoDB _id)
     private String id;
 
-    private String text; // Message text content (optional, can be null for media-only messages)
+    private String text; // Message text content (optional, can be null for image-only messages)
 
     private String senderId; // User ID of the message sender (references User collection)
 
     private String receiverId; // User ID of the message receiver (references User collection)
 
-    // Encrypted media metadata (null if no media)
-    private String mediaId; // UUID of encrypted media file
-    private String encryptedKey; // Base64-encoded AES key for decryption
-    private String iv; // Base64-encoded initialization vector
-    private String hash; // SHA-256 hash of encrypted blob
-    private String mimeType; // Original MIME type (image/jpeg, etc.)
-    private Long fileSize; // Size of encrypted blob in bytes
+    private String image; // URL to image attachment (optional, stored in Cloudinary)
 
     @CreatedDate // Automatically populated with creation timestamp
     private LocalDateTime createdAt;

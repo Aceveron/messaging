@@ -4,7 +4,7 @@
  * This service handles all authentication-related business logic including:
  * - User registration with validation and password hashing
  * - User login with credential verification
- * - Profile picture updates
+ * - Profile picture updates with Cloudinary integration
  * - Authentication status checking
  * 
  * Business logic flow:
@@ -23,6 +23,7 @@ import com.messaging.backend.dto.request.UpdateProfileRequest;
 import com.messaging.backend.dto.response.AuthResponse;
 import com.messaging.backend.entity.User;
 import com.messaging.backend.repository.UserRepository;
+import com.messaging.backend.util.CloudinaryUtil;
 import com.messaging.backend.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,6 +48,9 @@ public class AuthService {
 
     @Autowired
     private AuthenticationManager authenticationManager; // Spring Security authentication
+
+    @Autowired
+    private CloudinaryUtil cloudinaryUtil; // Cloudinary image upload utility
 
     /**
      * Registers a new user
@@ -155,12 +159,13 @@ public class AuthService {
 
     /**
      * Updates user's profile picture
-     *
+     * 
      * Process:
      * - Validates profile picture data is provided
-     * - Updates user record with provided image URL/path
+     * - Uploads image to Cloudinary
+     * - Updates user record with new image URL
      * - Returns updated user data
-     *
+     * 
      * @param userId ID of the user to update
      * @param request Update profile request containing image data
      * @return AuthResponse with updated user data
@@ -176,8 +181,11 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Update user's profile picture (value should already point to stored asset)
-        user.setProfilePic(request.getProfilePic());
+        // Upload image to Cloudinary
+        String imageUrl = cloudinaryUtil.uploadImage(request.getProfilePic());
+
+        // Update user's profile picture
+        user.setProfilePic(imageUrl);
         User updatedUser = userRepository.save(user);
 
         // Return updated user data

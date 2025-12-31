@@ -7,6 +7,7 @@
     - Spring Security (Authentication & Authorization)
     - WebSocket (Real-time messaging)
     - JWT (Token-based authentication)
+    - Cloudinary (Image upload service)
     - Lombok (Reduce boilerplate code)
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -74,6 +75,13 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.12.3</version>
             <scope>runtime</scope>
+        </dependency>
+        
+        <!-- Cloudinary SDK for image upload and management -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http44</artifactId>
+            <version>1.39.0</version>
         </dependency>
         
         <!-- Lombok to reduce boilerplate code -->

@@ -18,15 +18,10 @@
  */
 package com.messaging.backend;
 
-import com.messaging.backend.service.MediaStorageService;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableScheduling // Enable scheduled tasks (media cleanup)
 public class MessagingApplication {
 
     /**
@@ -41,15 +36,5 @@ public class MessagingApplication {
         System.out.println("===========================================");
         System.out.println("Messaging Backend Application Started");
         System.out.println("===========================================");
-    }
-
-    /**
-     * Initialize media storage directory on startup
-     */
-    @Bean
-    CommandLineRunner initMediaStorage(MediaStorageService mediaStorageService) {
-        return args -> {
-            mediaStorageService.init();
-        };
     }
 }

@@ -44,16 +44,4 @@ public interface MessageRepository extends MongoRepository<Message, String> {
            "{ 'senderId': ?1, 'receiverId': ?0 } " +
            "] }")
     List<Message> findConversationMessages(String senderId, String receiverId);
-
-    /**
-     * Check if a user has access to a media file (sent or received it)
-     * Used for media access control
-     * 
-     * @param mediaId Media ID to check
-     * @param senderId User ID to check as sender
-     * @param receiverId User ID to check as receiver
-     * @return true if user sent or received a message with this mediaId
-     */
-    @Query(value = "{ 'mediaId': ?0, $or: [ { 'senderId': ?1 }, { 'receiverId': ?2 } ] }", exists = true)
-    boolean existsByMediaIdAndSenderIdOrReceiverId(String mediaId, String senderId, String receiverId);
 }
