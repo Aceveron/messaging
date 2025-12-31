@@ -4,13 +4,13 @@
  * This service handles all messaging-related business logic including:
  * - Fetching all users for the sidebar (excluding the logged-in user)
  * - Retrieving conversation history between two users
- * - Sending new messages with optional image attachments
+ * - Sending new messages with optional encrypted media
  * - Real-time message broadcasting via WebSocket
  * 
  * Business logic flow:
  * - Validates input data and user existence
  * - Interacts with database through repositories
- * - Uploads images to Cloudinary when provided
+ * - Stores encrypted media metadata (no server-side decryption)
  * - Broadcasts messages in real-time to connected users
  * 
  * This service is called by the MessageController to process messaging requests.
@@ -24,7 +24,6 @@ import com.messaging.backend.entity.Message;
 import com.messaging.backend.entity.User;
 import com.messaging.backend.repository.MessageRepository;
 import com.messaging.backend.repository.UserRepository;
-import com.messaging.backend.util.CloudinaryUtil;
 import com.messaging.backend.websocket.WebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,9 +40,6 @@ public class MessageService {
 
     @Autowired
     private MessageRepository messageRepository; // Database access for messages
-
-    @Autowired
-    private CloudinaryUtil cloudinaryUtil; // Cloudinary image upload utility
 
     @Autowired
     private WebSocketHandler webSocketHandler; // WebSocket handler for real-time updates
@@ -90,7 +86,12 @@ public class MessageService {
                         message.getText(),
                         message.getSenderId(),
                         message.getReceiverId(),
-                        message.getImage(),
+                        message.getMediaId(),
+                        message.getEncryptedKey(),
+                        message.getIv(),
+                        message.getHash(),
+                        message.getMimeType(),
+                        message.getFileSize(),
                         message.getCreatedAt(),
                         message.getUpdatedAt()
                 ))
@@ -102,14 +103,14 @@ public class MessageService {
      * 
      * Process:
      * - Validates that sender and receiver exist
-     * - Uploads image to Cloudinary if provided
+     * - Stores encrypted media metadata (client already uploaded media)
      * - Saves message to database
      * - Broadcasts message to receiver via WebSocket (real-time)
      * - Returns the saved message
      * 
      * @param senderId ID of the user sending the message
      * @param receiverId ID of the user receiving the message
-     * @param request Send message request containing text and/or image
+     * @param request Send message request containing text and/or encrypted media metadata
      * @return MessageResponse with the sent message details
      */
     @SuppressWarnings("null")
@@ -122,18 +123,20 @@ public class MessageService {
         userRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
 
-        // Upload image to Cloudinary if provided
-        String imageUrl = null;
-        if (request.getImage() != null && !request.getImage().isEmpty()) {
-            imageUrl = cloudinaryUtil.uploadImage(request.getImage());
-        }
-
         // Create new message
         Message message = new Message();
         message.setText(request.getText());
         message.setSenderId(senderId);
         message.setReceiverId(receiverId);
-        message.setImage(imageUrl);
+        
+        // Store encrypted media metadata (if provided)
+        message.setMediaId(request.getMediaId());
+        message.setEncryptedKey(request.getEncryptedKey());
+        message.setIv(request.getIv());
+        message.setHash(request.getHash());
+        message.setMimeType(request.getMimeType());
+        message.setFileSize(request.getFileSize());
+        
         // Ensure real-time timestamps are set on creation
         LocalDateTime now = LocalDateTime.now();
         message.setCreatedAt(now);
@@ -148,7 +151,12 @@ public class MessageService {
                 savedMessage.getText(),
                 savedMessage.getSenderId(),
                 savedMessage.getReceiverId(),
-                savedMessage.getImage(),
+                savedMessage.getMediaId(),
+                savedMessage.getEncryptedKey(),
+                savedMessage.getIv(),
+                savedMessage.getHash(),
+                savedMessage.getMimeType(),
+                savedMessage.getFileSize(),
                 savedMessage.getCreatedAt(),
                 savedMessage.getUpdatedAt()
         );

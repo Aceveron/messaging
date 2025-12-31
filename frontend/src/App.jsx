@@ -4,7 +4,6 @@ import Home from "./pages/Home";
 import Register from "./pages/register";
 import Login from "./pages/login";
 import Profile from "./pages/profile";
-import Settings from "./pages/Settings";
 import { useAuth } from "./store/useAuth";
 import { useEffect } from "react";
 import { Loader } from "lucide-react"
@@ -34,7 +33,6 @@ const App = () => {
           <Route path="/register" element={ !authUser ? <Register /> : <Navigate to="/" />} />
           <Route path="/login" element={ !authUser ? <Login /> : <Navigate to="/" />} />
           <Route path="/profile" element={ authUser ? <Profile /> : <Navigate to="/login" />} />
-          <Route path="/settings" element={<Settings />} />
         </Routes>
 
         <Toaster position="top-center" />
